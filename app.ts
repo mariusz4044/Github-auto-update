@@ -1,37 +1,29 @@
 import inquirer from "inquirer";
+import "dotenv/config";
 
 import { updateEnvVariable } from "./src/updateEnvVariable.js";
+import { cloneRepository } from "./src/repositoryClone.js";
 
-const choices: string[] = [
-    "Run program",
-    "Change repository URL with personal access token",
-    "Exit"
-];
+//prompts
+import { actionMenuPrompt, choices } from "./prompts/actionMenuPrompt.js";
+import { changeRepoPrompt } from "./prompts/changeRepoPrompt.js";
 
-const question: object[] = [
-    {
-        type: "list",
-        name: "action",
-        message: "Choose an option:",
-        choices
-    }
-];
-
-const questionChange: object[] = [
-    {
-        type: "input",
-        name: "newRepoURl",
-        message: "Place your new repository URL with personal access token:",
-    }
-];
+//declare env variables
+let REPOSITORY_URL: string = process.env.REPOSITORY_URL as string;
+let CURRENT_COMMIT_HASH: string = process.env.CURRENT_COMMIT_HASH as string;
 
 (async () => {
-    const { action } = await inquirer.prompt(question as any);
+  const { action } = await inquirer.prompt(actionMenuPrompt as any);
 
-    switch (action) {
-        case choices[1]:
-          const {newRepoURl} = await inquirer.prompt(questionChange as any);
-          updateEnvVariable("REPOSITORY_URL", newRepoURl);
-          break;
-    }
+  switch (action) {
+    case choices[0]:
+      await cloneRepository(REPOSITORY_URL, "./project");
+      break;
+    case choices[1]:
+      const { newRepoURl } = await inquirer.prompt(changeRepoPrompt as any);
+      if (!newRepoURl) return console.log("Please provide a valid URL");
+      updateEnvVariable("REPOSITORY_URL", newRepoURl);
+      REPOSITORY_URL = newRepoURl;
+      break;
+  }
 })();
