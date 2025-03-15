@@ -1,0 +1,33 @@
+{
+  "name": "github-auto-update",
+  "version": "1.0.0",
+  "description": "Update files before running with use Fine-grained personal access tokens ",
+  "homepage": "https://github.com/mariusz4044/Github-auto-update#readme",
+  "bugs": {
+    "url": "https://github.com/mariusz4044/Github-auto-update/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mariusz4044/Github-auto-update.git"
+  },
+  "license": "ISC",
+  "author": "mariusz42",
+  "type": "module",
+  "main": "app.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc & node build/app.js",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "execa": "^9.5.2",
+    "fs": "^0.0.1-security",
+    "inquirer": "^12.4.3",
+    "path": "^0.12.7",
+    "prettier": "^3.5.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10"
+  }
+}
