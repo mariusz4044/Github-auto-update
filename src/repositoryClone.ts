@@ -1,5 +1,6 @@
 import { execa } from "execa";
 import fs from "fs/promises";
+import path from "path";
 
 import { updateEnvVariable } from "./updateEnvVariable.js";
 
@@ -17,6 +18,16 @@ async function getRepositoryCommitHash(url: string): Promise<string> {
   }
 }
 
+async function isGitRepository(folderPath: string): Promise<boolean> {
+  try {
+    await fs.access(path.join(folderPath, ".git"));
+    await execa("git", ["-C", folderPath, "status"]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function cloneRepository(
   url: string,
   path: string,
@@ -30,14 +41,23 @@ export async function cloneRepository(
       return true;
     }
 
-    //remove old project
-    await fs.rm(path, { recursive: true, force: true });
+    const isGitRepoExist = await isGitRepository(path);
 
-    console.log("[Github Updater] 🕒 Detect update, please wait");
-    await execa("git", ["clone", url, path]);
-    console.log("[Github Updater] ✅ Project updated successfully!");
+    if (isGitRepoExist) {
+      console.log(
+        "[Github Updater] 🚀 Repository exists, pulling latest changes...",
+      );
 
-    updateEnvVariable("CURRENT_COMMIT_HASH", remoteCommitHash);
+      await execa("git", ["-C", path, "stash"]); //Remove local changes
+      await execa("git", ["-C", path, "pull"]);
+      console.log("[Github Updater] ✅  Project updated successfully!");
+    } else {
+      console.log("[Github Updater] 👇 Repository not found, cloning...");
+      await execa("git", ["clone", url, path]);
+      console.log("[Github Updater] ✅  Project cloned successfully!");
+    }
+
+    //  updateEnvVariable("CURRENT_COMMIT_HASH", remoteCommitHash);
 
     return true;
   } catch (error) {
